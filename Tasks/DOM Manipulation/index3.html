@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Phone Book</title>
+  </head>
+  <body>
+    <h1>Phone Book</h1>
+
+    <form id="contactForm">
+      <input
+        type="hidden"
+        id="editIndex" />
+      <input
+        type="text"
+        id="nameInput"
+        placeholder="Name"
+        required />
+      <input
+        type="text"
+        id="phoneInput"
+        placeholder="Phone"
+        required />
+      <button type="submit">Save</button>
+    </form>
+
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search" />
+
+    <ul id="contactList"></ul>
+
+    <script>
+      const contactForm = document.getElementById('contactForm');
+      const nameInput = document.getElementById('nameInput');
+      const phoneInput = document.getElementById('phoneInput');
+      const editIndexInput = document.getElementById('editIndex');
+      const contactList = document.getElementById('contactList');
+      const searchInput = document.getElementById('searchInput');
+
+      let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+
+      function saveContacts() {
+        localStorage.setItem('contacts', JSON.stringify(contacts));
+      }
+
+      function renderContacts(filter = '') {
+        contactList.innerHTML = '';
+        const filtered = contacts.filter(
+          (c) =>
+            c.name.toLowerCase().includes(filter.toLowerCase()) ||
+            c.phone.includes(filter)
+        );
+        filtered.forEach((contact, index) => {
+          const li = document.createElement('li');
+
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = contact.name + ': ';
+          li.appendChild(nameSpan);
+
+          const phoneSpan = document.createElement('span');
+          phoneSpan.textContent = contact.phone;
+          li.appendChild(phoneSpan);
+
+          const editButton = document.createElement('button');
+          editButton.textContent = 'Edit';
+          editButton.addEventListener('click', () => {
+            nameInput.value = contact.name;
+            phoneInput.value = contact.phone;
+            editIndexInput.value = index;
+          });
+
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.addEventListener('click', () => {
+            contacts.splice(index, 1);
+            saveContacts();
+            renderContacts(searchInput.value);
+          });
+
+          li.appendChild(editButton);
+          li.appendChild(deleteButton);
+          contactList.appendChild(li);
+        });
+      }
+
+      contactForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
+        const editIndex = editIndexInput.value;
+
+        if (name && phone) {
+          if (editIndex === '') {
+            contacts.push({ name, phone });
+          } else {
+            contacts[editIndex] = { name, phone };
+          }
+
+          nameInput.value = '';
+          phoneInput.value = '';
+          editIndexInput.value = '';
+          saveContacts();
+          renderContacts(searchInput.value);
+        }
+      });
+
+      searchInput.addEventListener('input', function () {
+        renderContacts(searchInput.value);
+      });
+
+      renderContacts();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>To Do List</title>
+  </head>
+  <body>
+    <h1>To Do List</h1>
+
+    <form id="taskForm">
+      <input
+        type="text"
+        id="taskInput"
+        placeholder="Enter new task"
+        required />
+      <button type="submit">Add Task</button>
+    </form>
+
+    <div>
+      <button data-filter="all">All</button>
+      <button data-filter="active">Active</button>
+      <button data-filter="completed">Completed</button>
+    </div>
+
+    <ul id="taskList"></ul>
+
+    <script>
+      const taskForm = document.getElementById('taskForm');
+      const taskInput = document.getElementById('taskInput');
+      const taskList = document.getElementById('taskList');
+      const filterButtons = document.querySelectorAll('button[data-filter]');
+
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      let currentFilter = 'all';
+
+      function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
+      function renderTasks() {
+        taskList.innerHTML = '';
+        let filteredTasks = tasks;
+
+        if (currentFilter === 'active') {
+          filteredTasks = tasks.filter((task) => !task.completed);
+        } else if (currentFilter === 'completed') {
+          filteredTasks = tasks.filter((task) => task.completed);
+        }
+
+        filteredTasks.forEach((task, index) => {
+          const li = document.createElement('li');
+          li.textContent = task.text;
+          if (task.completed) {
+            li.classList.add('completed');
+          }
+
+          const completeButton = document.createElement('button');
+          completeButton.textContent = task.completed
+            ? 'Incomplete'
+            : 'Complete';
+          completeButton.addEventListener('click', () => {
+            tasks[index].completed = !tasks[index].completed;
+            saveTasks();
+            renderTasks();
+          });
+
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.addEventListener('click', () => {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+          });
+
+          li.appendChild(completeButton);
+          li.appendChild(deleteButton);
+          taskList.appendChild(li);
+        });
+      }
+
+      taskForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const taskText = taskInput.value.trim();
+        if (taskText !== '') {
+          tasks.push({ text: taskText, completed: false });
+          taskInput.value = '';
+          saveTasks();
+          renderTasks();
+        }
+      });
+
+      filterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          currentFilter = button.getAttribute('data-filter');
+          renderTasks();
+        });
+      });
+
+      renderTasks();
+    </script>
+  </body>
+</html>

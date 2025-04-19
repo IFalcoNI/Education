@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .selected {
+        background-color: blue;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="calendar"></div>
+    <input
+      type="text"
+      id="event-text"
+      placeholder="Подія" />
+    <button onclick="addEvent()">додати до списку</button>
+
+    <ul id="events-list"></ul>
+
+    <script>
+      let events = {};
+      let selectedDay = null;
+
+      function loadEvents() {
+        const storedEvents = localStorage.getItem('events');
+        if (storedEvents) {
+          events = JSON.parse(storedEvents);
+        }
+      }
+
+      function saveEvents() {
+        localStorage.setItem('events', JSON.stringify(events));
+      }
+
+      function generateCalendar() {
+        let calendar = document.getElementById('calendar');
+        calendar.innerHTML = '';
+
+        for (let i = 1; i <= 31; i++) {
+          let button = document.createElement('button');
+          button.textContent = i;
+          button.id = 'day-' + i;
+          button.onclick = function () {
+            selectDay(i);
+          };
+          calendar.appendChild(button);
+        }
+      }
+
+      function selectDay(day) {
+        if (selectedDay !== null) {
+          document
+            .getElementById('day-' + selectedDay)
+            .classList.remove('selected');
+        }
+
+        selectedDay = day;
+        document.getElementById('day-' + selectedDay).classList.add('selected');
+        showEvents(selectedDay);
+      }
+
+      function showEvents(day) {
+        document.getElementById('events-list').innerHTML = '';
+        let dayEvents = events[day] || [];
+        dayEvents.forEach((event) => {
+          let li = document.createElement('li');
+          li.textContent = event;
+          document.getElementById('events-list').appendChild(li);
+        });
+      }
+
+      function addEvent() {
+        if (selectedDay === null) {
+          alert('виберіть день');
+          return;
+        }
+
+        const eventText = document.getElementById('event-text').value;
+        if (!eventText) {
+          alert('введіть текст');
+          return;
+        }
+
+        if (!events[selectedDay]) events[selectedDay] = [];
+        events[selectedDay].push(eventText);
+
+        saveEvents();
+        showEvents(selectedDay);
+      }
+
+      window.onload = function () {
+        loadEvents();
+        generateCalendar();
+      };
+    </script>
+  </body>
+</html>

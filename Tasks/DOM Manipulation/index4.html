@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Comments</title>
+  </head>
+  <body>
+    <h1>Comments</h1>
+
+    <form id="commentForm">
+      <input
+        type="text"
+        id="authInput"
+        placeholder="Your name"
+        required />
+      <textarea
+        id="textInput"
+        placeholder="Your comment"
+        required></textarea>
+      <button type="submit">Add Comment</button>
+    </form>
+
+    <ul id="commentsList"></ul>
+
+    <script>
+      const commentForm = document.getElementById('commentForm');
+      const authInput = document.getElementById('authInput');
+      const textInput = document.getElementById('textInput');
+      const commentsList = document.getElementById('commentsList');
+
+      let comments = JSON.parse(localStorage.getItem('comments')) || [];
+
+      function saveComments() {
+        localStorage.setItem('comments', JSON.stringify(comments));
+      }
+
+      function createComment(comment, path = []) {
+        const li = document.createElement('li');
+
+        const info = document.createElement('div');
+        info.textContent =
+          comment.author + ' - ' + new Date(comment.time).toLocaleString();
+        li.appendChild(info);
+
+        const content = document.createElement('div');
+        content.textContent = comment.text;
+        li.appendChild(content);
+
+        const replyBtn = document.createElement('button');
+        replyBtn.textContent = 'Reply';
+        li.appendChild(replyBtn);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        li.appendChild(deleteBtn);
+
+        const replyForm = document.createElement('form');
+        const replyName = document.createElement('input');
+        const replyText = document.createElement('textarea');
+        const sendBtn = document.createElement('button');
+
+        replyName.placeholder = 'Your name';
+        replyText.placeholder = 'Reply';
+        sendBtn.textContent = 'Send';
+        sendBtn.type = 'submit';
+
+        replyForm.appendChild(replyName);
+        replyForm.appendChild(replyText);
+        replyForm.appendChild(sendBtn);
+        replyForm.style.display = 'none';
+        li.appendChild(replyForm);
+
+        replyBtn.addEventListener('click', () => {
+          replyForm.style.display =
+            replyForm.style.display === 'none' ? 'block' : 'none';
+        });
+
+        replyForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const reply = {
+            author: replyName.value,
+            text: replyText.value,
+            time: Date.now(),
+            replies: []
+          };
+
+          let target = comments;
+          for (let i of path) {
+            target = target[i].replies;
+          }
+          target.push(reply);
+          saveComments();
+          renderComments();
+        });
+
+        deleteBtn.addEventListener('click', () => {
+          let target = comments;
+          for (let i = 0; i < path.length - 1; i++) {
+            target = target[path[i]].replies;
+          }
+          target.splice(path[path.length - 1], 1);
+          saveComments();
+          renderComments();
+        });
+
+        if (comment.replies.length > 0) {
+          const repliesUl = document.createElement('ul');
+          comment.replies.forEach((reply, idx) => {
+            repliesUl.appendChild(createComment(reply, [...path, idx]));
+          });
+          li.appendChild(repliesUl);
+        }
+
+        return li;
+      }
+
+      function renderComments() {
+        commentsList.innerHTML = '';
+        comments.forEach((comment, index) => {
+          commentsList.appendChild(createComment(comment, [index]));
+        });
+      }
+
+      commentForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const newComment = {
+          author: authInput.value,
+          text: textInput.value,
+          time: Date.now(),
+          replies: []
+        };
+        comments.push(newComment);
+        saveComments();
+        renderComments();
+        authInput.value = '';
+        textInput.value = '';
+      });
+
+      renderComments();
+    </script>
+  </body>
+</html>

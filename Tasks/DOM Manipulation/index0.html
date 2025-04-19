@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form id="image-form">
+      <input
+        type="url"
+        id="image-url"
+        placeholder="url image"
+        required />
+      <input
+        type="text"
+        id="image-description"
+        placeholder="description"
+        required />
+      <button type="submit">add</button>
+    </form>
+
+    <div id="gallery"></div>
+
+    <div
+      id="largeContainer"
+      style="display: none">
+      <img id="large-image" />
+      <button onclick="closeLargeContainer()">X</button>
+    </div>
+  </body>
+  <script>
+    document
+      .getElementById('image-form')
+      .addEventListener('submit', function (e) {
+        e.preventDefault();
+        const url = document.getElementById('image-url').value;
+        const description = document.getElementById('image-description').value;
+
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = description;
+        img.style.width = '200px';
+        img.addEventListener('click', function () {
+          document.getElementById('large-image').src = url;
+          document.getElementById('largeContainer').style.display = 'block';
+        });
+
+        document.getElementById('gallery').appendChild(img);
+      });
+
+    function closeLargeContainer() {
+      document.getElementById('largeContainer').style.display = 'none';
+    }
+  </script>
+</html>

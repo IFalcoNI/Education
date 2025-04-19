@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Task Manager</title>
+    <link
+      rel="stylesheet"
+      href="style.css" />
+  </head>
+  <body>
+    <h1>Task Manager</h1>
+
+    <form id="taskForm">
+      <input
+        type="text"
+        id="description"
+        placeholder="Task description"
+        required />
+      <select id="priority">
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <button type="submit">Add Task</button>
+    </form>
+
+    <div>
+      <label
+        >Filter status:
+        <select id="statusFilter">
+          <option value="all">All</option>
+          <option value="new">New</option>
+          <option value="in progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </label>
+
+      <label
+        >Filter priority:
+        <select id="priorityFilter">
+          <option value="all">All</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+
+      <button id="sortBtn">Sort priority</button>
+    </div>
+
+    <ul id="taskList"></ul>
+
+    <script src="main.js"></script>
+  </body>
+</html>
